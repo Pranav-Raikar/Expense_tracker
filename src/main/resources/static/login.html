@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Expense Tracker – Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:#0b1222;color:#e2e8f0;
+  display:flex;justify-content:center;align-items:center;
+  min-height:100vh;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.bg{
+  position:fixed;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(37,99,235,.18),transparent);
+  pointer-events:none;
+}
+.dots{
+  position:fixed;inset:0;
+  background-image:radial-gradient(rgba(255,255,255,.04) 1px,transparent 1px);
+  background-size:30px 30px;pointer-events:none;
+}
+.card{
+  background:#111827;
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:18px;padding:38px 42px;width:440px;
+  box-shadow:0 32px 64px rgba(0,0,0,.55);
+  animation:up .4s ease;position:relative;z-index:1;
+}
+@keyframes up{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.logo{
+  width:62px;height:62px;
+  background:linear-gradient(135deg,#3b82f6,#1d4ed8);
+  border-radius:50%;margin:0 auto 16px;
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+  box-shadow:0 8px 24px rgba(37,99,235,.35);
+}
+h1{text-align:center;font-size:22px;font-weight:800;margin-bottom:4px}
+.sub{text-align:center;color:#64748b;font-size:13.5px;margin-bottom:22px}
+.tabs{
+  display:flex;background:#1e293b;border-radius:10px;padding:4px;gap:4px;margin-bottom:22px;
+}
+.tab{
+  flex:1;padding:9px;text-align:center;border-radius:7px;
+  cursor:pointer;font-size:14px;font-weight:600;color:#64748b;transition:all .2s;
+}
+.tab.active{background:#2563eb;color:#fff}
+.fg{margin-bottom:15px}
+label{display:block;font-size:12.5px;font-weight:600;color:#cbd5e1;margin-bottom:7px}
+input{
+  width:100%;padding:12px 14px;
+  background:#1e293b;border:1px solid rgba(255,255,255,.08);
+  border-radius:9px;color:#e2e8f0;font-size:14px;font-family:inherit;
+  outline:none;transition:border-color .2s;
+}
+input:focus{border-color:#3b82f6}
+input::placeholder{color:#475569}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn{
+  width:100%;padding:13px;
+  background:linear-gradient(135deg,#3b82f6,#1d4ed8);
+  border:none;border-radius:9px;color:#fff;
+  font-size:14.5px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:4px;font-family:inherit;transition:opacity .2s,transform .1s;
+}
+.btn:hover{opacity:.9}.btn:active{transform:scale(.98)}
+.hint{text-align:center;font-size:12.5px;color:#475569;margin-top:16px}
+.msg{
+  border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:13px;display:none;
+}
+.err{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#f87171}
+.ok {background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#4ade80}
+.help{
+  position:fixed;bottom:20px;right:20px;
+  width:34px;height:34px;background:#1e293b;
+  border:1px solid rgba(255,255,255,.1);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:#64748b;font-size:14px;cursor:pointer;font-family:inherit;
+}
+</style>
+</head>
+<body>
+<div class="bg"></div><div class="dots"></div>
+<div class="card">
+  <div class="logo">💳</div>
+  <h1>Smart Expense Tracker</h1>
+  <p class="sub">Sign in to manage your finances</p>
+
+  <div class="tabs">
+    <div class="tab active" id="tl" onclick="sw('login')">Login</div>
+    <div class="tab"        id="ts" onclick="sw('signup')">Sign Up</div>
+  </div>
+
+  <div id="err" class="msg err"></div>
+  <div id="ok"  class="msg ok"></div>
+
+  <!-- ── LOGIN ── -->
+  <div id="fLogin">
+    <div class="fg"><label>Username</label><input id="lu" placeholder="Enter your username"></div>
+    <div class="fg"><label>Password</label><input id="lp" type="password" placeholder="Enter your password"></div>
+    <button class="btn" onclick="doLogin()">&#x279C;&nbsp; Login</button>
+    <p class="hint">Demo: Use any username and password to login</p>
+  </div>
+
+  <!-- ── SIGNUP ── -->
+  <div id="fSignup" style="display:none">
+    <div class="row2">
+      <div class="fg"><label>First Name</label><input id="sfn" placeholder="John"></div>
+      <div class="fg"><label>Last Name</label> <input id="sln" placeholder="Doe"></div>
+    </div>
+    <div class="fg"><label>Email</label>   <input id="sem" type="email" placeholder="john@example.com"></div>
+    <div class="fg"><label>Username</label><input id="su"  placeholder="Choose a username"></div>
+    <div class="fg"><label>Password</label><input id="sp"  type="password" placeholder="Min 4 characters"></div>
+    <button class="btn" onclick="doSignup()">&#x2714;&nbsp; Create Account</button>
+  </div>
+</div>
+<button class="help">?</button>
+
+<script>
+const API = '/api';
+
+function sw(t){
+  document.getElementById('tl').classList.toggle('active', t==='login');
+  document.getElementById('ts').classList.toggle('active', t==='signup');
+  document.getElementById('fLogin').style.display  = t==='login'  ? 'block':'none';
+  document.getElementById('fSignup').style.display = t==='signup' ? 'block':'none';
+  hide();
+}
+function show(type,msg){
+  hide();
+  const el=document.getElementById(type);
+  el.textContent=msg; el.style.display='block';
+}
+function hide(){
+  document.getElementById('err').style.display='none';
+  document.getElementById('ok').style.display='none';
+}
+
+async function doLogin(){
+  const u=document.getElementById('lu').value.trim();
+  const p=document.getElementById('lp').value;
+  if(!u||!p){show('err','Please enter username and password');return;}
+  try{
+    const r=await fetch(API+'/login',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({username:u,password:p})
+    });
+    const d=await r.json();
+    if(d.success){
+      sessionStorage.setItem('et_user',JSON.stringify(d));
+      window.location.href='index.html';
+    } else {
+      show('err',d.message||'Invalid username or password');
+    }
+  } catch(e){show('err','Cannot connect to server. Is Spring Boot running on port 8080?');}
+}
+
+async function doSignup(){
+  const fn=document.getElementById('sfn').value.trim();
+  const ln=document.getElementById('sln').value.trim();
+  const em=document.getElementById('sem').value.trim();
+  const u =document.getElementById('su').value.trim();
+  const p =document.getElementById('sp').value;
+  if(!fn||!u||!p){show('err','First name, username and password are required');return;}
+  if(p.length<4){show('err','Password must be at least 4 characters');return;}
+  try{
+    const r=await fetch(API+'/signup',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({firstName:fn,lastName:ln,email:em,username:u,password:p})
+    });
+    const d=await r.json();
+    if(d.success){
+      show('ok','Account created! You can now login.');
+      setTimeout(()=>sw('login'),1600);
+    } else {
+      show('err',d.message||'Signup failed');
+    }
+  } catch(e){show('err','Cannot connect to server. Is Spring Boot running on port 8080?');}
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    if(document.getElementById('fLogin').style.display!=='none') doLogin();
+    else doSignup();
+  }
+});
+</script>
+</body>
+</html>
